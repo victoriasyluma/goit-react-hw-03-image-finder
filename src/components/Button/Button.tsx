@@ -1,9 +1,17 @@
-import { Component } from 'react';
+import { Component, MouseEventHandler } from 'react';
 import PropTypes from 'prop-types';
-import styles from './Button.scss';
+import styles from './Button.module.scss';
 
-export class Button extends Component {
+export class Button extends Component<{
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}> {
   render() {
-    return <button className={styles.button}>Load more</button>;
+    const { onClick } = this.props;
+
+    return (
+      <button onClick={onClick} className={styles.button}>
+        Load more
+      </button>
+    );
   }
 }
