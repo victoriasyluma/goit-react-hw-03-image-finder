@@ -1,5 +1,7 @@
 import { Component } from 'react';
 import { TPixabayResult } from './App.types';
+import { ImageGallery } from './ImageGallery/ImageGallery';
+import { Searchbar } from './Searchbar/Searchbar';
 
 export class App extends Component<{}, TPixabayResult> {
   state: TPixabayResult = {
@@ -20,13 +22,10 @@ export class App extends Component<{}, TPixabayResult> {
     const { hits } = this.state;
 
     return (
-      <ul>
-        {hits.map((hit) => (
-          <li key={hit.id}>
-            <img style={{ height: '100px' }} src={hit.largeImageURL} />
-          </li>
-        ))}
-      </ul>
+      <>
+        <Searchbar onSubmit={onsubmit}></Searchbar>
+        <ImageGallery hits={hits} />
+      </>
     );
   }
 }
