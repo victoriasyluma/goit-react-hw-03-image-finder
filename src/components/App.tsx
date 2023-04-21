@@ -3,6 +3,8 @@ import { TPixabayResult } from './App.types';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Searchbar } from './Searchbar/Searchbar';
 import { Button } from './Button/Button';
+import { Loader } from './Loader/Loader';
+import styles from './App.module.scss';
 
 type TAppState = TPixabayResult & {
   page: number;
@@ -15,16 +17,10 @@ export class App extends Component<{}, TAppState> {
     total: 0,
     totalHits: 0,
     page: 0,
-    isLoading: true,
+    isLoading: false,
   };
 
   private filter: string = '';
-
-  componentDidMount() {
-    this.loadPhotos({
-      currentPage: 0,
-    });
-  }
 
   loadPhotos = async ({ currentPage }: { currentPage: number }) => {
     const { filter } = this;
@@ -82,10 +78,11 @@ export class App extends Component<{}, TAppState> {
     const shouldDisplayLoadMore = !isLoading && hits.length < total;
 
     return (
-      <div style={{ marginBottom: '200px' }}>
+      <div className={styles.container}>
         <Searchbar onSubmit={this.onSubmit}></Searchbar>
+        {isLoading && <Loader />}
 
-        <ImageGallery hits={hits} />
+        {!!hits.length && <ImageGallery hits={hits} />}
 
         {shouldDisplayLoadMore && (
           <Button onClick={this.handleLoadMore}></Button>
