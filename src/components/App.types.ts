@@ -9,5 +9,4 @@ export type TPixabayResult = {
   hits: TPixabayHit[];
   total: number;
   totalHits: number;
-  page: number;
 };
