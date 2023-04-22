@@ -1,5 +1,4 @@
 import { Component, FormEvent } from 'react';
-import PropTypes from 'prop-types';
 import styles from './Searchbar.module.scss';
 import { BiSearch } from 'react-icons/bi';
 
