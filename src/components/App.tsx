@@ -1,4 +1,4 @@
-import { Component, FormEvent, MouseEventHandler } from 'react';
+import { Component, FormEvent } from 'react';
 import { TPixabayResult } from './App.types';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Searchbar } from './Searchbar/Searchbar';
@@ -21,25 +21,41 @@ export class App extends Component<{}, TAppState> {
   };
 
   private filter: string = '';
+  private cleaningSearchCriteria: boolean = false;
 
-  loadPhotos = async ({ currentPage }: { currentPage: number }) => {
+  componentDidUpdate = (_: {}, previousState: TAppState) => {
+    const { state } = this;
+
+    const didPageChanged = state.page !== previousState.page;
+
+    // todo fix this
+    if (didPageChanged || this.cleaningSearchCriteria) {
+      this.loadPhotos();
+    }
+  };
+
+  loadPhotos = async () => {
+    this.cleaningSearchCriteria = false;
+
     const { filter } = this;
-    const nextPage = currentPage + 1;
+    const page = this.state.page;
 
     this.setState({
       isLoading: true,
     });
 
+    const per_page = 12;
     const { hits, ...result }: TPixabayResult = await fetch(
-      `https://pixabay.com/api/?q=${filter}&page=${nextPage}&key=34819237-929003d04d64445866cd0fd69&image_type=photo&orientation=horizontal&per_page=12`
+      `https://pixabay.com/api/?q=${filter}&page=${page}&key=34819237-929003d04d64445866cd0fd69&image_type=photo&orientation=horizontal&per_page=${per_page}`
     ).then((response) => response.json());
 
-    this.setState(({ hits: currentHits }) => ({
-      ...result,
-      hits: [...currentHits, ...hits],
-      page: nextPage,
-      isLoading: false,
-    }));
+    this.setState(({ hits: currentHits }) => {
+      return {
+        ...result,
+        hits: [...currentHits, ...hits],
+        isLoading: false,
+      };
+    });
   };
 
   /**
@@ -52,37 +68,34 @@ export class App extends Component<{}, TAppState> {
     const filter = data.values().next().value as string;
 
     this.filter = filter.toLocaleLowerCase().trim();
+    this.cleaningSearchCriteria = true;
 
     this.setState({
       hits: [],
       total: 0,
       totalHits: 0,
-      page: 0,
+      page: 1,
     });
-
-    this.loadPhotos({ currentPage: 0 });
   };
 
-  drawBatchOfHits = () => {};
-
-  onClick: MouseEventHandler<HTMLButtonElement> = (event) => {};
-
   handleLoadMore = () => {
-    const { page: currentPage } = this.state;
-
-    this.loadPhotos({ currentPage });
+    this.setState((state) => {
+      return {
+        page: state.page + 1,
+      };
+    });
   };
 
   render() {
     const { hits, total, isLoading } = this.state;
-    const shouldDisplayLoadMore = !isLoading && hits.length < total;
+    const shouldDisplayLoadMore = ((!isLoading && hits?.length) ?? 0) < total;
 
     return (
       <div className={styles.container}>
         <Searchbar onSubmit={this.onSubmit}></Searchbar>
         {isLoading && <Loader />}
 
-        {!!hits.length && <ImageGallery hits={hits} />}
+        {!!hits?.length && <ImageGallery hits={hits} />}
 
         {shouldDisplayLoadMore && (
           <Button onClick={this.handleLoadMore}></Button>

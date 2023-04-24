@@ -6,7 +6,7 @@ export type TPixabayHit = {
 };
 
 export type TPixabayResult = {
-  hits: TPixabayHit[];
+  hits: TPixabayHit[] | null;
   total: number;
   totalHits: number;
 };
